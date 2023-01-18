@@ -19,23 +19,48 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Build Python
-        run: make python/v${{ matrix.version }}
-      - name: Rename artifacts
-        shell: bash
-        run: |
-          sudo mv python/build-output/python/v${{ matrix.version }}/bin/python{,-${{ matrix.version }}}.wasm
+      # - name: Build Python
+      #   run: make python/v${{ matrix.version }}
+      # - name: Rename artifacts
+      #   shell: bash
+      #   run: |
+      #     sudo mv python/build-output/python/v${{ matrix.version }}/bin/python{,-${{ matrix.version }}}.wasm
       - name: Bundle Python with standard libraries
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r python-aio-${{ matrix.version }}.zip python/build-output/python/v${{ matrix.version }}/bin/python-${{ matrix.version }}.wasm python/build-output/python/v${{ matrix.version }}/usr
-      - name: Upload python-${{ matrix.version }}.wasm artifact
+          args: zip -qq -r python-aio-${{ matrix.version }}.zip wl-env-repo.sh v3.11.1
+          working-directory: python
+      # - name: Bundle Python with standard libraries
+      #   uses: montudor/action-zip@v1
+      #   with:
+      #     args: zip -qq -r python-aio-${{ matrix.version }}.zip bin/python-${{ matrix.version }}.wasm usr
+      #   working-directory: python/build-output/python/v${{ matrix.version }}
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: my-artifact
+      #     path: |
+      #       path/output/bin/
+      #       path/output/test-results
+      #       !path/**/*.tmp
+      # - name: Upload python-${{ matrix.version }}.wasm artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: python-${{ matrix.version }}.wasm
+      #     path: python/build-output/python/v${{ matrix.version }}/bin/python-${{ matrix.version }}.wasm
+      # - name: Upload python-aio-${{ matrix.version }}.zip artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: python-aio-${{ matrix.version }}.zip
+      #     path: |
+      #       python/build-output/python/v${{ matrix.version }}/bin/python-${{ matrix.version }}.wasm
+      #       python/build-output/python/v${{ matrix.version }}/usr
+      #   if-no-files-found: error
+      - name: Upload python-test-${{ matrix.version }}.zip artifact
         uses: actions/upload-artifact@v3
         with:
-          name: python-${{ matrix.version }}.wasm
-          path: python/build-output/python/v${{ matrix.version }}/bin/python-${{ matrix.version }}.wasm
-      - name: Upload python-aio-${{ matrix.version }}.zip artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: python-aio-${{ matrix.version }}.zip
-          path: python-aio-${{ matrix.version }}.zip
+          name: python-test-${{ matrix.version }}.zip
+          path: |
+            python/wl-env-repo.sh
+            python/v3.11.1  
+        if-no-files-found: error
+
