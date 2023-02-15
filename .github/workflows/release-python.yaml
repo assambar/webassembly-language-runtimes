@@ -126,4 +126,4 @@ jobs:
           gh release upload ${{ github.ref_name }} \
             python-${{ matrix.version }}.tar.gz.sha256sum \
             build-output/python/v${{ matrix.version }}-aio/bin/python-${{ matrix.version }}.wasm.sha256sum \
-            build-output/python/v${{ matrix.version }}-aio-wasmedge/bin/python-${{ matrix.version }}-wasmedge.wasm
+            build-output/python/v${{ matrix.version }}-aio-wasmedge/bin/python-${{ matrix.version }}-wasmedge.wasm.sha256sum
