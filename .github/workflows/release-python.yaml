@@ -73,7 +73,7 @@ jobs:
         run: |
           tar -cvf python-${{ matrix.version }}.tar \
             -C build-output/python/v${{ matrix.version }}/ \
-            bin/python-${{ matrix.version }}.wasm
+            bin/python-${{ matrix.version }}.wasm \
             usr
           tar -rvf python-${{ matrix.version }}.tar \
             -C build-output/python/v${{ matrix.version }}-wasmedge/ \
