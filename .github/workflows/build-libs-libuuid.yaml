@@ -8,14 +8,14 @@ on:
       - main
     paths:
        - ".github/**"
-       - "libs/uuid/**"
+       - "libs/libuuid/**"
        - "libs/*"
        - "scripts/**"
        - "Makefile*"
        - "*.sh"
   pull_request:
 jobs:
-  build-libs-uuid:
+  build-libs-libuuid:
     strategy:
       fail-fast: false
       matrix:
