@@ -1,4 +1,4 @@
-name: Build LibUuid
+name: Build libs-zlib
 on:
   push:
     # By specifying branches explicitly, we avoid this workflow from
@@ -8,22 +8,19 @@ on:
       - main
     paths:
        - ".github/**"
-       - "libs/uuid/**"
+       - "libs/zlib/**"
        - "libs/*"
        - "scripts/**"
        - "Makefile*"
        - "*.sh"
   pull_request:
 jobs:
-  build-uuid:
+  build-libs-zlib:
     strategy:
       fail-fast: false
       matrix:
         include:
-          - version: 1.0.3
+          - version: 1.2.13
     uses: ./.github/workflows/reusable-build-lib.yaml
     with:
-      name: "libuuid"
-      version: ${{ matrix.version }}
-      target-name: "uuid"
-      target-prefix: "libuuid-"
+      target: zlib/v${{ matrix.version }}
