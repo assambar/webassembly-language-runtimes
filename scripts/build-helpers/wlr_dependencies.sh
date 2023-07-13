@@ -39,6 +39,10 @@ function wlr_dependencies_add {
     fi
 
     if [[ -v _DEP_URL && "${WLR_DEPS_FORCE_LOCAL}" != *"${_NAME}"* ]]; then
+        if [[ "${_DEP_URL}" != *"${WASI_SDK_ASSET_NAME}"* ]]; then
+            logStatus "Trying to get ${_NAME} from asset which is not built with '${WASI_SDK_ASSET_NAME}': '${_DEP_URL}'"
+            exit 1
+        fi
         logStatus "Downloading ${_NAME} dependency from ${_DEP_URL}..."
         echo "curl -sL \"${_DEP_URL}\" | tar xzv -C \"${WLR_DEPS_ROOT}/build-output/\""
         curl -sL "${_DEP_URL}" | tar xzv -C "${WLR_DEPS_ROOT}/build-output/"
@@ -52,4 +56,33 @@ function wlr_dependencies_add {
             WLR_BUILD_TYPE=dependency \
             $WLR_MAKE "${WLR_REPO_ROOT}/${_BUILD_COMMAND}" || exit 1
     fi
+}
+
+function wlr_dependencies_load {
+    local _DEPS_FILE=$1
+    if [[ ! -z "$2" ]]; then
+        local _BLD_FLAVOR=$2
+    fi
+
+    if [ ! -f "${_DEPS_FILE}" ]; then
+        echo "Missing dependencies file '${_DEPS_FILE}'"
+        exit 1
+    fi
+
+    if [[ -v _BLD_FLAVOR ]] && jq -e ".flavors | has(\"${_BLD_FLAVOR}\")" ${_DEPS_FILE}; then
+        local _JSON_ROOT_PATH=".flavors.\"${_BLD_FLAVOR}\""
+    fi
+
+    for dependency in $(jq "${_JSON_ROOT_PATH}.deps | keys | join(\" \")" -r ${_DEPS_FILE} 2>/dev/null); do
+        local _NAME=$dependency
+        local _BUILD_TARGET=$(jq "${_JSON_ROOT_PATH}.deps.\"${_NAME}\".build_target" -r ${_DEPS_FILE})
+        local _REQUIRED_FILE=$(jq "${_JSON_ROOT_PATH}.deps.\"${_NAME}\".required_file" -r $_DEPS_FILE)
+        local _URL=$(jq "${_JSON_ROOT_PATH}.deps.\"${_NAME}\".url" -r ${_DEPS_FILE})
+
+        if [ "${_URL}" = "null" ]; then
+            unset _URL
+        fi
+
+        wlr_dependencies_add "${_NAME}" "${_BUILD_TARGET}" "${_REQUIRED_FILE}" "${_URL}"
+    done
 }

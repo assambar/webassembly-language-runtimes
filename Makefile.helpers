@@ -1,3 +1,6 @@
+# Default wask-sdk version used in builds
+WASI_SDK_VERSION ?= 20.0
+
 define push_container_image
     $(eval $@_IMAGE_NAME = $(1))
     @(docker image inspect $($@_IMAGE_NAME) 1>/dev/null 2>&1 || \
@@ -146,4 +149,40 @@ all:
 clean:
 	rm -rf $(1)/build-output/$(2) $(1)/build-staging/$(2)
 
+endef
+
+
+
+##########
+# Creates a flavor target for given runtime+version that is built from this repo.
+#
+# USAGE:
+#  - At Makefile root level (not as part of a target)
+#  - $(eval $(call create_flavor_target,php,v1.2.3,slim))
+#
+define create_flavor_target
+# $1 - TARGET_NAME
+# $2 - TARGET_VERSION
+# $3 - TARGET_FLAVOR
+
+.PHONY: $(1)/$(2)-$(3)
+$(1)/$(2)-$(3):
+	WLR_BUILD_FLAVOR=$(3) make -C $(1) $(2)
+endef
+
+
+
+##########
+# Creates target for all given flavors or given runtime+version that is built from this repo.
+#
+# USAGE:
+#  - At Makefile root level (not as part of a target)
+#  - $(call create_flavor_targets,php,v1.2.3,slim wasmedge slim-wasmedge)
+#
+define create_flavor_targets
+# $1 - TARGET_NAME
+# $2 - TARGET_VERSION
+# $3 - TARGET_FLAVORS - separated by space
+
+$(foreach _,${3},$(eval $(call create_flavor_target,${1},${2},$_)))
 endef

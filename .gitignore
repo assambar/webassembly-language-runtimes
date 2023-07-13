@@ -1,9 +1,12 @@
 # Ignore everything in these directories
+__pycache__
 build-output
 build-staging
+node_modules
 target
 .vscode/**
 *.log
 # Except this file
 !.gitignore
 .wlr-local-conf.sh
+wlr-tmp
